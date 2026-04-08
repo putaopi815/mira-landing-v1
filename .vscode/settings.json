@@ -1,0 +1,13 @@
+{
+  "remote.autoForwardPorts": true,
+  "remote.portsAttributes": {
+    "3000": {
+      "label": "Next.js",
+      "onAutoForward": "notify"
+    },
+    "3001": {
+      "label": "Next.js (alt)",
+      "onAutoForward": "notify"
+    }
+  }
+}

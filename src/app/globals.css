@@ -1,0 +1,540 @@
+/* Noto Sans SC — Source Han Sans 简体，完整汉字；next/font 子集不含中文 */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap");
+
+@import "tailwindcss";
+@import "../styles/mobile-first.css";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --accent: #6D7CFF;
+  --muted: rgba(255,255,255,0.5);
+  --subtle: rgba(255,255,255,0.25);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  /* 西文 Manrope（圆几何），中文 Noto */
+  --font-sans: var(--font-manrope), "Manrope", "Noto Sans SC", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif;
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ── Full-page Scroll Snap ──
+   只让 html 作为纵向滚动容器，避免 html + body 双滚动条 */
+html {
+  scroll-snap-type: y mandatory;
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: 100%;
+  /* 程序化 scrollIntoView / 锚点跳转更顺滑；触摸滑动仍主要由 CSS snap + 惯性滚动负责 */
+  scroll-behavior: smooth;
+  /* 与 Tailwind font-sans 一致 */
+  font-family: var(--font-manrope), "Manrope", "Noto Sans SC", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", ui-sans-serif, sans-serif;
+  /* 西文标题略接近参考站点的清晰几何感 */
+  font-optical-sizing: auto;
+  /* 隐藏滚动条，保留滚动与 snap（Firefox / IE 系） */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  min-height: 100%;
+  background: #000000;
+  color: #ffffff;
+  font-family: inherit;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+/* Each snap section: 至少一屏高；内容可超出视口由 html 滚动，避免 overflow:hidden 裁切长列表（如 Problem） */
+.snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.snap-section > * {
+  flex-shrink: 0;
+}
+
+/* Last snap section: CTA + Footer 自上而下排布，不强制整屏垂直居中 */
+.snap-section-last {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  overflow: visible;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  box-sizing: border-box;
+}
+
+.snap-section-last > * {
+  flex-shrink: 0;
+}
+
+/* Footer 吃满 CTA 下方剩余高度，便于水印贴齐区块底 */
+.snap-section-last > footer {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+main {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  /* 与桌面一致：html 为唯一纵向滚动容器，保留整屏 scroll-snap */
+  .footer-watermark-text {
+    font-size: clamp(96px, 30vw, 220px);
+  }
+
+  /* 小屏：snap 对齐考虑刘海与 Home 条，减轻「贴边/吸不住」感 */
+  html {
+    scroll-padding-top: max(0px, env(safe-area-inset-top, 0px));
+    scroll-padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+    /* 减少纵向橡皮筋把整页甩出 snap 的视觉干扰 */
+    overscroll-behavior-y: contain;
+  }
+
+  .snap-section,
+  .snap-section-last {
+    scroll-margin-top: max(0px, env(safe-area-inset-top, 0px));
+    scroll-margin-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+  }
+
+  /* 避免整屏垂直居中 + overflow:hidden 从上下对称裁切，露出下一屏标题边缘 */
+  .snap-section {
+    justify-content: flex-start;
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+  }
+
+  .snap-section-last {
+    padding-top: max(0.5rem, env(safe-area-inset-top, 0px));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ── Desktop (≥768px)：Hero 独占固定视口高度，子元素 height:100% 才能成立；其余屏仍允许增高避免裁切长内容 ── */
+@media (min-width: 768px) {
+  #snap-hero.snap-section {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+}
+
+/* ── Static photo hero backdrop ── */
+.hero-photo-backdrop-root {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-photo-backdrop-image-drift {
+  position: absolute;
+  inset: -4%;
+  animation: heroPhotoBackdropDrift 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+.hero-photo-backdrop-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center 30%;
+  will-change: transform;
+}
+
+.hero-photo-backdrop-veil {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-photo-backdrop-veil-inner {
+  position: absolute;
+  inset: -12% -24%;
+  background:
+    linear-gradient(
+      108deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(118, 132, 210, 0.14) 30%,
+      rgba(210, 222, 255, 0.04) 48%,
+      rgba(84, 98, 168, 0.12) 70%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  opacity: 0.3;
+  animation: heroPhotoBackdropVeil 24s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.hero-photo-backdrop-tech-sheen {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.hero-photo-backdrop-tech-sheen-inner {
+  position: absolute;
+  inset: -18% -36%;
+  background: linear-gradient(
+    112deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(136, 156, 255, 0.02) 24%,
+    rgba(168, 188, 255, 0.12) 44%,
+    rgba(255, 255, 255, 0.02) 56%,
+    rgba(102, 124, 214, 0.1) 74%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  opacity: 0.18;
+  animation: heroPhotoBackdropSheen 18s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.hero-photo-backdrop-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(88vw, 1120px);
+  height: min(76vh, 820px);
+  transform: translate3d(-50%, -50%, 0) scale(1);
+  transform-origin: 50% 50%;
+  background: radial-gradient(
+    ellipse 60% 54% at 50% 48%,
+    rgba(214, 224, 255, 0.24) 0%,
+    rgba(138, 158, 244, 0.14) 34%,
+    rgba(76, 94, 162, 0.06) 60%,
+    transparent 100%
+  );
+  opacity: 0.2;
+  animation: heroPhotoBackdropGlow 10s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.hero-photo-backdrop-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.78) 0%, transparent 70%),
+    linear-gradient(to top, #000 0%, rgba(0, 0, 0, 0.68) 25%, rgba(0, 0, 0, 0.26) 60%, rgba(0, 0, 0, 0.84) 100%);
+}
+
+@keyframes heroPhotoBackdropDrift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-1.8%, -2.2%, 0) scale(1.04);
+  }
+}
+
+@keyframes heroPhotoBackdropVeil {
+  0%,
+  100% {
+    transform: translate3d(-4%, 0, 0);
+    opacity: 0.24;
+  }
+  50% {
+    transform: translate3d(4%, 0, 0);
+    opacity: 0.38;
+  }
+}
+
+@keyframes heroPhotoBackdropSheen {
+  0%,
+  100% {
+    transform: translate3d(-5%, 0, 0);
+    opacity: 0.12;
+  }
+  50% {
+    transform: translate3d(5%, 0, 0);
+    opacity: 0.22;
+  }
+}
+
+@keyframes heroPhotoBackdropGlow {
+  0%,
+  100% {
+    transform: translate3d(-50%, -50%, 0) scale(1);
+    opacity: 0.16;
+  }
+  50% {
+    transform: translate3d(-50%, -50%, 0) scale(1.06);
+    opacity: 0.28;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo-backdrop-image-drift,
+  .hero-photo-backdrop-veil-inner,
+  .hero-photo-backdrop-tech-sheen-inner,
+  .hero-photo-backdrop-glow {
+    animation: none;
+  }
+
+  .hero-photo-backdrop-image-drift {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .hero-photo-backdrop-veil-inner {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.3;
+  }
+
+  .hero-photo-backdrop-tech-sheen-inner {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.16;
+  }
+
+  .hero-photo-backdrop-glow {
+    transform: translate3d(-50%, -50%, 0) scale(1);
+    opacity: 0.22;
+  }
+}
+
+/* ── Gradient Divider ── */
+.gradient-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.12) 20%, rgba(255,255,255,0.12) 80%, transparent 100%);
+}
+
+/* ── Hero Entrance Animations ── */
+@keyframes heroMaskReveal {
+  from { opacity: 1; }
+  to { opacity: 0; pointer-events: none; }
+}
+
+@keyframes heroSlideUp {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes heroScaleIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.hero-mask {
+  animation: heroMaskReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.2s forwards;
+}
+
+.hero-slide-1 {
+  font-weight: 500;
+  transform: translateY(110%);
+  animation: heroSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.5s forwards;
+}
+
+.hero-slide-2 {
+  font-weight: 500;
+  transform: translateY(110%);
+  animation: heroSlideUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s forwards;
+}
+
+.hero-fade-1 {
+  opacity: 0;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards;
+}
+
+.hero-fade-2 {
+  opacity: 0;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.95s forwards;
+}
+
+.hero-fade-3 {
+  opacity: 0;
+  animation: heroFadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 1.1s forwards;
+}
+
+.hero-fade-4 {
+  opacity: 0;
+  animation: heroScaleIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 1.3s forwards;
+}
+
+/* ── Scroll-scrub text reveal ── */
+.scrub-text {
+  color: rgba(255,255,255,0.15);
+  transition: color 0.3s ease;
+}
+.scrub-text.active {
+  color: rgba(255,255,255,1);
+}
+
+/* ── Nav link hover ── */
+.nav-link {
+  position: relative;
+  transition: color 0.25s ease;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1px;
+  background: rgba(255,255,255,0.6);
+  transition: width 0.3s cubic-bezier(0.16,1,0.3,1), left 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+.nav-link:hover {
+  color: rgba(255,255,255,1) !important;
+}
+.nav-link:hover::after {
+  width: 100%;
+  left: 0;
+}
+
+/* ── CTA Button shine sweep ── */
+@keyframes shineSweep {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  transform: translateX(-100%) skewX(-15deg);
+  pointer-events: none;
+}
+.btn-shine:hover::after {
+  animation: shineSweep 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+
+/* ── Ghost button glow ── */
+.btn-ghost {
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+.btn-ghost:hover {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+  color: rgba(255,255,255,1) !important;
+}
+
+/* ── Footer link hover ── */
+.footer-link {
+  transition: color 0.25s ease;
+}
+.footer-link:hover {
+  color: rgba(255,255,255,0.85) !important;
+}
+
+/* Footer 水印「Mira.」：占满页脚剩余高度，字贴在容器底边；行盒下沿用 line-height / margin 吃掉字体 leading */
+.footer-watermark-wrap {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  container-type: inline-size;
+  overflow-x: clip;
+  /* 禁用 overflow-y: clip — 会裁掉大字号字形底部（Mira 下半截消失） */
+  overflow-y: visible;
+  padding-bottom: 0;
+  margin-bottom: 0;
+}
+
+.footer-watermark-text {
+  display: block;
+  text-align: center;
+  /* 略收紧行盒 + 小负边距贴底，避免过激进导致裁切 */
+  line-height: 0.78;
+  margin-bottom: -0.06em;
+  user-select: none;
+  /* Manrope 仅加载到 800；900 为浏览器合成加粗，不用 text-shadow 以免重影 */
+  font-weight: 900;
+  white-space: nowrap;
+  font-size: clamp(160px, 37cqw, 560px);
+  /* 上实下淡：顶部 alpha 0.8 → 中部 0.22 → 底部 0.03 */
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.8) 0%,
+    rgba(255, 255, 255, 0.22) 55%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.2;
+}
+
+/* ── Social icon hover ── */
+.social-icon {
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+.social-icon:hover {
+  color: rgba(255,255,255,0.7) !important;
+  transform: translateY(-2px);
+}
+
+/* ── Spotlight card (mouse follow glow) ── */
+.spotlight-container {
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Chip pulse for active state ── */
+@keyframes chipPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.15); }
+  50% { box-shadow: 0 0 12px 2px rgba(255,255,255,0.08); }
+}
+
+.chip-active {
+  animation: chipPulse 2.5s ease-in-out infinite;
+}
+
+/* Paradigm 副标题单行：隐藏横向滚动条 */
+.paradigm-subline-scroll::-webkit-scrollbar {
+  display: none;
+}
